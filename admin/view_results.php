@@ -20,8 +20,20 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
     
     $output = fopen('php://output', 'w');
     
-    // CSV headers
-    fputcsv($output, array('User', 'Quiz', 'Score', 'Correct Answers', 'Total Questions', 'Date Completed'));
+    // CSV headers - detailed table format
+    fputcsv($output, array(
+        'Result ID',
+        'User ID',
+        'Username',
+        'Quiz ID',
+        'Quiz Title',
+        'Score (%)',
+        'Correct Answers',
+        'Total Questions',
+        'Percentage',
+        'Date Completed',
+        'Time Taken (seconds)'
+    ));
     
     // Base query for CSV
     $query = "
@@ -65,13 +77,26 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
     $stmt->execute($params);
     
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        // Calculate time taken if available
+        $time_taken = 'N/A';
+        if (isset($row['start_time']) && $row['start_time']) {
+            $start = strtotime($row['start_time']);
+            $end = strtotime($row['completed_at']);
+            $time_taken = $end - $start;
+        }
+        
         fputcsv($output, array(
+            $row['result_id'],
+            $row['user_id'],
             $row['username'],
+            $row['quiz_id'],
             $row['title'],
-            round($row['score'], 2) . '%',
+            round($row['score'], 2),
             $row['correct_answers'],
             $row['total_questions'],
-            date('M j, Y g:i a', strtotime($row['completed_at']))
+            round($row['score'], 2) . '%',
+            date('Y-m-d H:i:s', strtotime($row['completed_at'])),
+            $time_taken
         ));
     }
     
@@ -417,7 +442,7 @@ $users = $pdo->query("SELECT user_id, username FROM users ORDER BY username")->f
                                         <td><?php echo $result['correct_answers']; ?>/<?php echo $result['total_questions']; ?></td>
                                         <td><?php echo date('M j, Y g:i a', strtotime($result['completed_at'])); ?></td>
                                         <td class="action-cell">
-                                            <a href="#" class="btn btn-view">View Details</a>
+                                            <a href="result_detail.php?result_id=<?php echo $result['result_id']; ?>" class="btn btn-view">View Details</a>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -431,7 +456,7 @@ $users = $pdo->query("SELECT user_id, username FROM users ORDER BY username")->f
                 </div>
             </div>
         </div>
-    
+        
         <?php include 'admin_footer.php'; ?>
     </div>
 </body>
