@@ -73,15 +73,9 @@ VALUES ('admin', 'admin@example.com', '$2y$12$no5q4DPdA26jXMsj26cXs.MC9OrD.LDMsH
 
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
 ALTER TABLE user_responses 
 ALTER COLUMN selected_answer TYPE VARCHAR(10),
 DROP CONSTRAINT IF EXISTS user_responses_selected_answer_check;
-
-ALTER TABLE questions DROP CONSTRAINT IF EXISTS questions_correct_answer_check;
 
 -- Modify the correct_answer column to support multiple answers
 ALTER TABLE questions 
@@ -89,8 +83,14 @@ ALTER COLUMN correct_answer TYPE VARCHAR(10);
 
 ALTER TABLE questions 
 ADD COLUMN IF NOT EXISTS question_type VARCHAR(10) NOT NULL DEFAULT 'single' CHECK (question_type IN ('single', 'multi'));
+--------
+ALTER TABLE user_responses 
+ALTER COLUMN selected_answer TYPE VARCHAR(10),
+DROP CONSTRAINT IF EXISTS user_responses_selected_answer_check;
 
 ALTER TABLE questions DROP CONSTRAINT IF EXISTS questions_correct_answer_check;
+---------------
+
 
 -------------------------------------------------------------------------------------------------------------------------------------------
 ALTER TABLE questions
