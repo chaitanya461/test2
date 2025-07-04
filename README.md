@@ -77,6 +77,8 @@ ALTER TABLE user_responses
 ALTER COLUMN selected_answer TYPE VARCHAR(10),
 DROP CONSTRAINT IF EXISTS user_responses_selected_answer_check;
 
+ALTER TABLE questions DROP CONSTRAINT IF EXISTS questions_correct_answer_check;
+
 -- Modify the correct_answer column to support multiple answers
 ALTER TABLE questions 
 ALTER COLUMN correct_answer TYPE VARCHAR(10);
